@@ -1,9 +1,21 @@
-import { Router, type Router as ExpressRouter } from "express";
+import { Router } from "express";
+import { prisma } from "../db/prisma.js";
 
-export const healthRouter: ExpressRouter = Router();
+const router: Router = Router();
 
-healthRouter.get("/health", (_req, res) => {
+router.get("/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
   });
 });
+
+router.get("/ready", async (_req, res) => {
+  await prisma.$queryRaw`SELECT 1`;
+
+  res.status(200).json({
+    status: "ok",
+    database: "ok",
+  });
+});
+
+export { router as healthRouter };
