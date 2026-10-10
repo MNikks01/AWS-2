@@ -6,6 +6,7 @@ import { AppError } from "../../shared/errors/app-error.js";
 import {
   createOrderSchema,
   idempotencyKeySchema,
+  orderIdParamSchema,
 } from "./order.schemas.js";
 import { orderService } from "./order.service.js";
 
@@ -38,6 +39,20 @@ export const createOrder: RequestHandler = async (req, res) => {
   const order = await orderService.create(body.data, key.data);
 
   res.status(201).json({
+    data: order,
+  });
+};
+
+export const processOrder: RequestHandler = async (req, res) => {
+  const params = orderIdParamSchema.safeParse(req.params);
+
+  if (!params.success) {
+    throw validationError(params.error);
+  }
+
+  const order = await orderService.process(params.data.id);
+
+  res.status(200).json({
     data: order,
   });
 };
